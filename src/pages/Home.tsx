@@ -6,10 +6,13 @@ import {
   CardMedia,
   CardContent,
   Typography,
+  Button,
 } from "@mui/material";
+import { useWatchlist } from "../features/watchlist/useWatchlist";
 
 const Home = () => {
   const { data: movies, error, isLoading } = useGetPopularMoviesQuery();
+  const { addMovie, removeMovie, isInWatchlist } = useWatchlist();
 
   if (isLoading) return <CircularProgress />;
   if (error)
@@ -31,6 +34,33 @@ const Home = () => {
               <Typography variant="body2" color="textSecondary">
                 ⭐ {movie.vote_average}
               </Typography>
+              {isInWatchlist(movie.id) ? (
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => removeMovie(movie.id)}
+                  fullWidth
+                  sx={{ marginTop: 1 }}
+                >
+                  Remove from Watchlist
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() =>
+                    addMovie({
+                      id: movie.id,
+                      title: movie.title,
+                      posterUrl: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                    })
+                  }
+                  fullWidth
+                  sx={{ marginTop: 1 }}
+                >
+                  Add to Watchlist
+                </Button>
+              )}
             </CardContent>
           </Card>
         </Grid>
