@@ -25,7 +25,6 @@ const Home = () => {
   const [query, setQuery] = useState("");
   const [tabValue, setTabValue] = useState(0);
 
-  // Movies
   const { data: popularMovies, isLoading: isPopularMoviesLoading } =
     useGetPopularMoviesQuery();
   const { data: searchedMovies, isLoading: isSearchMoviesLoading } =
@@ -33,7 +32,6 @@ const Home = () => {
       skip: query.length < 3,
     });
 
-  // TV Shows
   const { data: popularTVShows, isLoading: isPopularTVShowsLoading } =
     useGetPopularTVShowsQuery();
   const { data: searchedTVShows, isLoading: isSearchTVShowsLoading } =

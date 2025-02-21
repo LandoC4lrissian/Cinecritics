@@ -10,8 +10,24 @@ import {
 import Home from "./pages/Home";
 import Watchlist from "./pages/Watchlist";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
+import { useAuth } from "./features/auth/useAuth";
+import { signInWithGoogle, signOut } from "./features/auth/authActions";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "./store";
 
 function App() {
+  const { user } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleSignOut = async () => {
+    try {
+      await dispatch(signOut());
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Sign out failed:", error);
+    }
+  };
+
   return (
     <Router>
       <AppBar
@@ -70,24 +86,63 @@ function App() {
               >
                 Home
               </Button>
-              <Button
-                component={Link}
-                to="/watchlist"
-                sx={{
-                  color: "#fff",
-                  fontSize: { xs: "0.9rem", sm: "1.1rem" },
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                  px: { xs: 1, sm: 3 },
-                  py: { xs: 0.5, sm: 1 },
-                  borderRadius: 2,
-                  minWidth: { xs: "auto", sm: "unset" },
-                }}
-              >
-                Watchlist
-              </Button>
+              {user ? (
+                <>
+                  <Button
+                    component={Link}
+                    to="/watchlist"
+                    sx={{
+                      color: "#fff",
+                      fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                      px: { xs: 1, sm: 3 },
+                      py: { xs: 0.5, sm: 1 },
+                      borderRadius: 2,
+                      minWidth: { xs: "auto", sm: "unset" },
+                    }}
+                  >
+                    Watchlist
+                  </Button>
+                  <Button
+                    onClick={handleSignOut}
+                    sx={{
+                      color: "#fff",
+                      fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                      px: { xs: 1, sm: 3 },
+                      py: { xs: 0.5, sm: 1 },
+                      borderRadius: 2,
+                      minWidth: { xs: "auto", sm: "unset" },
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={signInWithGoogle}
+                  sx={{
+                    color: "#fff",
+                    fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                    textTransform: "none",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                    px: { xs: 1, sm: 3 },
+                    py: { xs: 0.5, sm: 1 },
+                    borderRadius: 2,
+                    minWidth: { xs: "auto", sm: "unset" },
+                  }}
+                >
+                  Login with Google
+                </Button>
+              )}
             </Box>
           </Toolbar>
         </Container>

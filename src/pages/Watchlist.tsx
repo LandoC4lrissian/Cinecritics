@@ -24,7 +24,6 @@ const Watchlist = () => {
       </Typography>
 
       {watchlist.length === 0 ? (
-        /** EMPTY STATE TASARIMI */
         <Box className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <EmptyStateIcon className="text-[100px] text-gray-500 mb-4" />
           <Typography
@@ -50,7 +49,6 @@ const Watchlist = () => {
           </Button>
         </Box>
       ) : (
-        /** MOVIE GRID */
         <Grid container spacing={4} className="px-4">
           {watchlist.map((movie) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>

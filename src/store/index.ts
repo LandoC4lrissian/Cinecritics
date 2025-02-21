@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import moviesReducer from "../features/movies/moviesSlice";
+import authReducer from "../features/auth/authSlice";
 import watchlistReducer from "../features/watchlist/watchlistSlice";
 import { tmdbApi } from "../features/api/tmdbApi";
 
 export const store = configureStore({
   reducer: {
     movies: moviesReducer,
+    auth: authReducer,
     watchlist: watchlistReducer,
     [tmdbApi.reducerPath]: tmdbApi.reducer,
   },
