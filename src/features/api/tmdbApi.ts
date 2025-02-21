@@ -18,7 +18,12 @@ export const tmdbApi = createApi({
         `/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`,
       transformResponse: (response: { results: Movie[] }) => response.results,
     }),
+    searchMovies: builder.query<Movie[], string>({
+      query: (query) =>
+        `/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${query}&page=1&include_adult=false`,
+      transformResponse: (response: { results: Movie[] }) => response.results,
+    }),
   }),
 });
 
-export const { useGetPopularMoviesQuery } = tmdbApi;
+export const { useGetPopularMoviesQuery, useSearchMoviesQuery } = tmdbApi;
