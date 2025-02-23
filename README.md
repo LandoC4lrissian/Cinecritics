@@ -1,3 +1,116 @@
+# CineCritics - Movie Review Application
+
+CineCritics is a modern web application built with React, TypeScript, and Vite, designed for movie enthusiasts to browse, review, and manage their watchlist of movies and TV shows.
+
+## Features
+- Browse popular movies and TV shows
+- Search functionality
+- Watchlist management
+- User authentication with Firebase
+- Responsive UI with Material-UI and TailwindCSS
+
+## Prerequisites
+- Node.js (v18 or higher)
+- Docker (optional)
+- Firebase project with Firestore enabled
+
+## Getting Started
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/cinecritics.git
+cd cinecritics
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Set Up Environment Variables
+Create a `.env` file in the root directory with your Firebase credentials:
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+### 4. Run the Development Server
+```bash
+npm run dev
+```
+
+### 5. Build for Production
+```bash
+npm run build
+```
+
+## Docker Setup
+
+### 1. Build the Docker Image
+```bash
+docker build -t cinecritics .
+```
+
+### 2. Run the Container
+```bash
+docker run -d -p 3000:80 cinecritics
+```
+
+### 3. Access the Application
+Open your browser and navigate to `http://localhost:3000`
+
+## Docker Compose
+Alternatively, you can use Docker Compose to manage the container:
+```bash
+docker-compose up
+```
+
+## Project Structure
+```plaintext
+cinecritics/
+├── src/
+│   ├── features/         # Redux slices and API logic
+│   ├── pages/            # Application pages
+│   ├── store/            # Redux store configuration
+│   ├── App.tsx           # Main application component
+│   └── main.tsx          # Entry point
+├── Dockerfile            # Docker configuration
+├── docker-compose.yml    # Docker Compose configuration
+├── package.json          # Project dependencies
+└── vite.config.ts        # Vite configuration
+```
+
+## Available Scripts
+- `dev`: Start development server
+- `build`: Build production version
+- `lint`: Run ESLint
+- `preview`: Preview production build
+
+## Technologies Used
+- React 19
+- TypeScript
+- Vite
+- Redux Toolkit
+- Material-UI
+- TailwindCSS
+- Firebase
+- Docker
+
+## Contributing
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/YourFeatureName`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/YourFeatureName`)
+5. Open a pull request
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
