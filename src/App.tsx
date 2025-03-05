@@ -6,7 +6,17 @@ import {
   Box,
   Container,
   Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import HomeIcon from "@mui/icons-material/Home";
+import WatchlistIcon from "@mui/icons-material/PlaylistAdd";
+import WatchedIcon from "@mui/icons-material/CheckCircle";
+import LogoutIcon from "@mui/icons-material/Logout";
 import Home from "./pages/Home";
 import Watchlist from "./pages/Watchlist";
 import Watched from "./pages/Watched";
@@ -15,10 +25,15 @@ import { useAuth } from "./features/auth/useAuth";
 import { signInWithGoogle, signOut } from "./features/auth/authActions";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "./store";
+import { useState } from "react";
 
 function App() {
   const { user } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
   const handleSignOut = async () => {
     try {
@@ -29,6 +44,14 @@ function App() {
     }
   };
 
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Router>
       <AppBar
@@ -37,13 +60,21 @@ function App() {
           background: "linear-gradient(45deg, #1a237e 30%, #283593 90%)",
           boxShadow: "0 3px 5px 2px rgba(0, 0, 0, .3)",
           mb: 4,
-          py: { xs: 1, sm: 2 },
-          px: { xs: 2, sm: 0, lg: 4 },
         }}
       >
-        <Container maxWidth={false} disableGutters>
-          <Toolbar disableGutters>
-            <Box className="flex items-center" sx={{ mr: { xs: 2, sm: 6 } }}>
+        <Container maxWidth={false}>
+          <Toolbar
+            disableGutters
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              py: { xs: 1, sm: 1.5 },
+            }}
+          >
+            <Box 
+              className="flex items-center" 
+              sx={{ flexGrow: isMobile ? 1 : 0 }}
+            >
               <MovieFilterIcon
                 sx={{
                   color: "#ffeb3b",
@@ -57,112 +88,198 @@ function App() {
                 sx={{
                   fontWeight: "bold",
                   color: "#fff",
-                  letterSpacing: 2,
+                  letterSpacing: { xs: 1, sm: 2 },
                   textTransform: "uppercase",
-                  fontSize: { xs: "1rem", sm: "1.25rem" },
+                  fontSize: { xs: "0.9rem", sm: "1.25rem" },
                 }}
               >
                 CineCritics
               </Typography>
             </Box>
-            <Box
-              className="flex-grow flex gap-4"
-              sx={{ justifyContent: "flex-end" }}
-            >
-              <Button
-                component={Link}
-                to="/"
-                sx={{
-                  color: "#fff",
-                  fontSize: { xs: "0.9rem", sm: "1.1rem" },
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                  px: { xs: 1, sm: 3 },
-                  py: { xs: 0.5, sm: 1 },
-                  borderRadius: 2,
-                  minWidth: { xs: "auto", sm: "unset" },
-                }}
+
+            {isMobile ? (
+              <>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  color="inherit"
+                  aria-label="menu"
+                  onClick={handleMenu}
+                  sx={{ color: "white" }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={open}
+                  onClose={handleClose}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      backgroundColor: "#1a237e",
+                      color: "white",
+                      minWidth: 180,
+                    },
+                  }}
+                >
+                  <MenuItem 
+                    component={Link} 
+                    to="/"
+                    onClick={handleClose}
+                    sx={{ py: 1.5 }}
+                  >
+                    <HomeIcon sx={{ mr: 1.5 }} />
+                    Home
+                  </MenuItem>
+                  
+                  {user ? (
+                    <>
+                      <MenuItem 
+                        component={Link} 
+                        to="/watchlist"
+                        onClick={handleClose}
+                        sx={{ py: 1.5 }}
+                      >
+                        <WatchlistIcon sx={{ mr: 1.5 }} />
+                        Watchlist
+                      </MenuItem>
+                      <MenuItem 
+                        component={Link} 
+                        to="/watched"
+                        onClick={handleClose}
+                        sx={{ py: 1.5 }}
+                      >
+                        <WatchedIcon sx={{ mr: 1.5 }} />
+                        Watched
+                      </MenuItem>
+                      <MenuItem 
+                        onClick={() => {
+                          handleClose();
+                          handleSignOut();
+                        }}
+                        sx={{ py: 1.5 }}
+                      >
+                        <LogoutIcon sx={{ mr: 1.5 }} />
+                        Logout
+                      </MenuItem>
+                    </>
+                  ) : (
+                    <MenuItem 
+                      onClick={() => {
+                        handleClose();
+                        signInWithGoogle();
+                      }}
+                      sx={{ py: 1.5 }}
+                    >
+                      Login with Google
+                    </MenuItem>
+                  )}
+                </Menu>
+              </>
+            ) : (
+              <Box 
+                className="flex items-center gap-2"
               >
-                Home
-              </Button>
-              {user ? (
-                <>
-                  <Button
-                    component={Link}
-                    to="/watchlist"
-                    sx={{
-                      color: "#fff",
-                      fontSize: { xs: "0.9rem", sm: "1.1rem" },
-                      textTransform: "none",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
-                      px: { xs: 1, sm: 3 },
-                      py: { xs: 0.5, sm: 1 },
-                      borderRadius: 2,
-                      minWidth: { xs: "auto", sm: "unset" },
-                    }}
-                  >
-                    Watchlist
-                  </Button>
-                  <Button
-                    component={Link}
-                    to="/watched"
-                    sx={{
-                      color: "#fff",
-                      fontSize: { xs: "0.9rem", sm: "1.1rem" },
-                      textTransform: "none",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
-                      px: { xs: 1, sm: 3 },
-                      py: { xs: 0.5, sm: 1 },
-                      borderRadius: 2,
-                      minWidth: { xs: "auto", sm: "unset" },
-                    }}
-                  >
-                    Watched
-                  </Button>
-                  <Button
-                    onClick={handleSignOut}
-                    sx={{
-                      color: "#fff",
-                      fontSize: { xs: "0.9rem", sm: "1.1rem" },
-                      textTransform: "none",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
-                      px: { xs: 1, sm: 3 },
-                      py: { xs: 0.5, sm: 1 },
-                      borderRadius: 2,
-                      minWidth: { xs: "auto", sm: "unset" },
-                    }}
-                  >
-                    Logout
-                  </Button>
-                </>
-              ) : (
                 <Button
-                  onClick={signInWithGoogle}
+                  component={Link}
+                  to="/"
                   sx={{
                     color: "#fff",
-                    fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                    fontSize: { sm: "0.9rem", md: "1.1rem" },
                     textTransform: "none",
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
                     },
-                    px: { xs: 1, sm: 3 },
-                    py: { xs: 0.5, sm: 1 },
+                    px: { sm: 2, md: 3 },
+                    py: 1,
                     borderRadius: 2,
-                    minWidth: { xs: "auto", sm: "unset" },
                   }}
                 >
-                  Login with Google
+                  Home
                 </Button>
-              )}
-            </Box>
+                {user ? (
+                  <>
+                    <Button
+                      component={Link}
+                      to="/watchlist"
+                      sx={{
+                        color: "#fff",
+                        fontSize: { sm: "0.9rem", md: "1.1rem" },
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        },
+                        px: { sm: 2, md: 3 },
+                        py: 1,
+                        borderRadius: 2,
+                      }}
+                    >
+                      Watchlist
+                    </Button>
+                    <Button
+                      component={Link}
+                      to="/watched"
+                      sx={{
+                        color: "#fff",
+                        fontSize: { sm: "0.9rem", md: "1.1rem" },
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        },
+                        px: { sm: 2, md: 3 },
+                        py: 1,
+                        borderRadius: 2,
+                      }}
+                    >
+                      Watched
+                    </Button>
+                    <Button
+                      onClick={handleSignOut}
+                      sx={{
+                        color: "#fff",
+                        fontSize: { sm: "0.9rem", md: "1.1rem" },
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        },
+                        px: { sm: 2, md: 3 },
+                        py: 1,
+                        borderRadius: 2,
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={signInWithGoogle}
+                    sx={{
+                      color: "#fff",
+                      fontSize: { sm: "0.9rem", md: "1.1rem" },
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                      px: { sm: 2, md: 3 },
+                      py: 1,
+                      borderRadius: 2,
+                    }}
+                  >
+                    Login with Google
+                  </Button>
+                )}
+              </Box>
+            )}
           </Toolbar>
         </Container>
       </AppBar>
