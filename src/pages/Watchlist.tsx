@@ -6,32 +6,61 @@ import {
   Typography,
   Button,
   Box,
+  Stack,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useWatchlist } from "../features/watchlist/useWatchlist";
+import { useWatched } from "../features/watched/useWatched";
 import EmptyStateIcon from "@mui/icons-material/PlaylistAddCheck";
 import { useState } from "react";
 import ConfirmationModal from "../components/ConfirmationModal";
 
 const Watchlist = () => {
   const { watchlist, removeMovie } = useWatchlist();
+  const { addMovie: addToWatched, isInWatched } = useWatched();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [movieToRemove, setMovieToRemove] = useState<number | null>(null);
+  const [modalAction, setModalAction] = useState<"remove" | "markAsWatched">("remove");
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
 
   const handleRemoveClick = (movieId: number) => {
     setMovieToRemove(movieId);
+    setModalAction("remove");
+    setModalTitle("Remove from Watchlist");
+    setModalMessage("Are you sure you want to remove this item from your watchlist?");
     setIsModalOpen(true);
   };
 
-  const handleConfirmRemove = () => {
+  const handleMarkWatchedClick = (movieId: number) => {
+    setMovieToRemove(movieId);
+    setModalAction("markAsWatched");
+    setModalTitle("Mark as Watched");
+    setModalMessage("Are you sure you want to mark this movie as watched?");
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmAction = () => {
     if (movieToRemove !== null) {
-      removeMovie(movieToRemove);
+      const movie = watchlist.find(m => m.id === movieToRemove);
+      
+      if (modalAction === "remove") {
+        removeMovie(movieToRemove);
+      } else if (modalAction === "markAsWatched" && movie) {
+        addToWatched({
+          id: movie.id,
+          title: movie.title,
+          posterUrl: movie.posterUrl,
+        });
+        removeMovie(movieToRemove);
+      }
     }
     setIsModalOpen(false);
     setMovieToRemove(null);
   };
 
-  const handleCancelRemove = () => {
+  const handleCancelAction = () => {
     setIsModalOpen(false);
     setMovieToRemove(null);
   };
@@ -89,16 +118,29 @@ const Watchlist = () => {
                   >
                     {movie.title}
                   </Typography>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => handleRemoveClick(movie.id)}
-                    startIcon={<DeleteIcon />}
-                    fullWidth
-                    className="normal-case rounded-md py-2 border-2 transition-colors hover:bg-red-100 dark:hover:bg-red-900"
-                  >
-                    Remove
-                  </Button>
+                  <Stack spacing={2}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={() => handleMarkWatchedClick(movie.id)}
+                      startIcon={<CheckCircleIcon />}
+                      fullWidth
+                      className="normal-case rounded-md py-2 transition-colors"
+                      disabled={isInWatched(movie.id)}
+                    >
+                      {isInWatched(movie.id) ? "Already Watched" : "Mark as Watched"}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleRemoveClick(movie.id)}
+                      startIcon={<DeleteIcon />}
+                      fullWidth
+                      className="normal-case rounded-md py-2 border-2 transition-colors hover:bg-red-100 dark:hover:bg-red-900"
+                    >
+                      Remove
+                    </Button>
+                  </Stack>
                 </CardContent>
               </Card>
             </Grid>
@@ -108,10 +150,10 @@ const Watchlist = () => {
 
       <ConfirmationModal
         open={isModalOpen}
-        title="Remove from Watchlist"
-        message="Are you sure you want to remove this item from your watchlist?"
-        onConfirm={handleConfirmRemove}
-        onCancel={handleCancelRemove}
+        title={modalTitle}
+        message={modalMessage}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
       />
     </Box>
   );

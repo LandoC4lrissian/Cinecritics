@@ -18,15 +18,22 @@ import {
   CircularProgress,
   Tabs,
   Tab,
+  Stack,
 } from "@mui/material";
 import { useWatchlist } from "../features/watchlist/useWatchlist";
+import { useWatched } from "../features/watched/useWatched";
 import ConfirmationModal from "../components/ConfirmationModal";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const Home = () => {
   const [query, setQuery] = useState("");
   const [tabValue, setTabValue] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<number | null>(null);
+  const [itemToWatch, setItemToWatch] = useState<{id: number, title: string, posterUrl: string} | null>(null);
+  const [modalAction, setModalAction] = useState<"remove" | "markAsWatched">("remove");
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
 
   const { data: popularMovies, isLoading: isPopularMoviesLoading } =
     useGetPopularMoviesQuery();
@@ -43,6 +50,7 @@ const Home = () => {
     });
 
   const { addMovie, removeMovie, isInWatchlist } = useWatchlist();
+  const { addMovie: addToWatched, isInWatched } = useWatched();
 
   const movies = query.length >= 3 ? searchedMovies : popularMovies;
   const tvShows = query.length >= 3 ? searchedTVShows : popularTVShows;
@@ -58,20 +66,40 @@ const Home = () => {
 
   const handleRemoveClick = (itemId: number) => {
     setItemToRemove(itemId);
+    setModalAction("remove");
+    setModalTitle("Remove from Watchlist");
+    setModalMessage("Are you sure you want to remove this item from your watchlist?");
     setIsModalOpen(true);
   };
 
-  const handleConfirmRemove = () => {
-    if (itemToRemove !== null) {
-      removeMovie(itemToRemove);
-    }
-    setIsModalOpen(false);
-    setItemToRemove(null);
+  const handleMarkWatchedClick = (id: number, title: string, posterPath: string) => {
+    setItemToWatch({
+      id,
+      title,
+      posterUrl: `https://image.tmdb.org/t/p/w500${posterPath}`
+    });
+    setModalAction("markAsWatched");
+    setModalTitle("Mark as Watched");
+    setModalMessage(`Are you sure you want to mark "${title}" as watched?`);
+    setIsModalOpen(true);
   };
 
-  const handleCancelRemove = () => {
+  const handleConfirmAction = () => {
+    if (modalAction === "remove" && itemToRemove !== null) {
+      removeMovie(itemToRemove);
+    } else if (modalAction === "markAsWatched" && itemToWatch !== null) {
+      addToWatched(itemToWatch);
+    }
+    
     setIsModalOpen(false);
     setItemToRemove(null);
+    setItemToWatch(null);
+  };
+
+  const handleCancelAction = () => {
+    setIsModalOpen(false);
+    setItemToRemove(null);
+    setItemToWatch(null);
   };
 
   return (
@@ -156,31 +184,61 @@ const Home = () => {
                         : "N/A"}
                     </Typography>
                   </Box>
-                  {isInWatchlist(movie.id) ? (
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => handleRemoveClick(movie.id)}
-                      fullWidth
-                    >
-                      Remove from Watchlist
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() =>
-                        addMovie({
-                          id: movie.id,
-                          title: movie.title,
-                          posterUrl: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-                        })
-                      }
-                      fullWidth
-                    >
-                      Add to Watchlist
-                    </Button>
-                  )}
+                  <Stack spacing={1}>
+                    {isInWatched(movie.id) ? (
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        fullWidth
+                        disabled
+                      >
+                        Already Watched
+                      </Button>
+                    ) : (
+                      <>
+                        {isInWatchlist(movie.id) ? (
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleRemoveClick(movie.id)}
+                            fullWidth
+                          >
+                            Remove from Watchlist
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() =>
+                              addMovie({
+                                id: movie.id,
+                                title: movie.title,
+                                posterUrl: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                              })
+                            }
+                            fullWidth
+                          >
+                            Add to Watchlist
+                          </Button>
+                        )}
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={() => 
+                            handleMarkWatchedClick(
+                              movie.id, 
+                              movie.title, 
+                              movie.poster_path
+                            )
+                          }
+                          startIcon={<CheckCircleIcon />}
+                          fullWidth
+                        >
+                          Mark as Watched
+                        </Button>
+                      </>
+                    )}
+                  </Stack>
                 </CardContent>
               </Card>
             </Grid>
@@ -250,10 +308,10 @@ const Home = () => {
 
       <ConfirmationModal
         open={isModalOpen}
-        title="Remove from Watchlist"
-        message="Are you sure you want to remove this item from your watchlist?"
-        onConfirm={handleConfirmRemove}
-        onCancel={handleCancelRemove}
+        title={modalTitle}
+        message={modalMessage}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
       />
     </Box>
   );

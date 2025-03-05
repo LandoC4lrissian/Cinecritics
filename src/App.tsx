@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import Home from "./pages/Home";
 import Watchlist from "./pages/Watchlist";
+import Watched from "./pages/Watched";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import { useAuth } from "./features/auth/useAuth";
 import { signInWithGoogle, signOut } from "./features/auth/authActions";
@@ -107,6 +108,24 @@ function App() {
                     Watchlist
                   </Button>
                   <Button
+                    component={Link}
+                    to="/watched"
+                    sx={{
+                      color: "#fff",
+                      fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                      px: { xs: 1, sm: 3 },
+                      py: { xs: 0.5, sm: 1 },
+                      borderRadius: 2,
+                      minWidth: { xs: "auto", sm: "unset" },
+                    }}
+                  >
+                    Watched
+                  </Button>
+                  <Button
                     onClick={handleSignOut}
                     sx={{
                       color: "#fff",
@@ -152,6 +171,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/watchlist" element={<Watchlist />} />
+          <Route path="/watched" element={<Watched />} />
         </Routes>
       </Container>
     </Router>
