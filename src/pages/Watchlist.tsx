@@ -10,9 +10,31 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useWatchlist } from "../features/watchlist/useWatchlist";
 import EmptyStateIcon from "@mui/icons-material/PlaylistAddCheck";
+import { useState } from "react";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const Watchlist = () => {
   const { watchlist, removeMovie } = useWatchlist();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [movieToRemove, setMovieToRemove] = useState<number | null>(null);
+
+  const handleRemoveClick = (movieId: number) => {
+    setMovieToRemove(movieId);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmRemove = () => {
+    if (movieToRemove !== null) {
+      removeMovie(movieToRemove);
+    }
+    setIsModalOpen(false);
+    setMovieToRemove(null);
+  };
+
+  const handleCancelRemove = () => {
+    setIsModalOpen(false);
+    setMovieToRemove(null);
+  };
 
   return (
     <Box className="p-6 min-h-screen flex flex-col items-center">
@@ -70,7 +92,7 @@ const Watchlist = () => {
                   <Button
                     variant="outlined"
                     color="error"
-                    onClick={() => removeMovie(movie.id)}
+                    onClick={() => handleRemoveClick(movie.id)}
                     startIcon={<DeleteIcon />}
                     fullWidth
                     className="normal-case rounded-md py-2 border-2 transition-colors hover:bg-red-100 dark:hover:bg-red-900"
@@ -83,6 +105,14 @@ const Watchlist = () => {
           ))}
         </Grid>
       )}
+
+      <ConfirmationModal
+        open={isModalOpen}
+        title="Remove from Watchlist"
+        message="Are you sure you want to remove this item from your watchlist?"
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+      />
     </Box>
   );
 };

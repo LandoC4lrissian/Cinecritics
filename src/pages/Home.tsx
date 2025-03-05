@@ -20,10 +20,13 @@ import {
   Tab,
 } from "@mui/material";
 import { useWatchlist } from "../features/watchlist/useWatchlist";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const Home = () => {
   const [query, setQuery] = useState("");
   const [tabValue, setTabValue] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<number | null>(null);
 
   const { data: popularMovies, isLoading: isPopularMoviesLoading } =
     useGetPopularMoviesQuery();
@@ -51,6 +54,24 @@ const Home = () => {
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleRemoveClick = (itemId: number) => {
+    setItemToRemove(itemId);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmRemove = () => {
+    if (itemToRemove !== null) {
+      removeMovie(itemToRemove);
+    }
+    setIsModalOpen(false);
+    setItemToRemove(null);
+  };
+
+  const handleCancelRemove = () => {
+    setIsModalOpen(false);
+    setItemToRemove(null);
   };
 
   return (
@@ -139,7 +160,7 @@ const Home = () => {
                     <Button
                       variant="contained"
                       color="secondary"
-                      onClick={() => removeMovie(movie.id)}
+                      onClick={() => handleRemoveClick(movie.id)}
                       fullWidth
                     >
                       Remove from Watchlist
@@ -199,7 +220,7 @@ const Home = () => {
                     <Button
                       variant="contained"
                       color="secondary"
-                      onClick={() => removeMovie(tvShow.id)}
+                      onClick={() => handleRemoveClick(tvShow.id)}
                       fullWidth
                     >
                       Remove from Watchlist
@@ -226,6 +247,14 @@ const Home = () => {
           ))}
         </Grid>
       )}
+
+      <ConfirmationModal
+        open={isModalOpen}
+        title="Remove from Watchlist"
+        message="Are you sure you want to remove this item from your watchlist?"
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+      />
     </Box>
   );
 };
