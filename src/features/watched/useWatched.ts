@@ -4,9 +4,11 @@ import {
   addToWatched,
   removeFromWatched,
   saveWatched,
+  fetchWatched,
 } from "./watchedSlice";
 import { useAuth } from "../auth/useAuth";
 import { AppDispatch } from "../../store";
+import { useEffect } from "react";
 
 interface WatchedItem {
   id: number;
@@ -18,7 +20,15 @@ interface WatchedItem {
 export const useWatched = () => {
   const dispatch = useDispatch<AppDispatch>();
   const watched = useSelector((state: RootState) => state.watched.items);
+  const status = useSelector((state: RootState) => state.watched.status);
   const { user } = useAuth();
+
+  // Fetch watched movies when hook is initialized and user changes
+  useEffect(() => {
+    if (user && status === "idle") {
+      dispatch(fetchWatched(user.uid));
+    }
+  }, [dispatch, user, status]);
 
   const addMovie = (movie: Omit<WatchedItem, "watchedDate">) => {
     if (!user) return;
@@ -43,5 +53,5 @@ export const useWatched = () => {
     return watched.some((movie) => movie.id === id);
   };
 
-  return { watched, addMovie, removeMovie, isInWatched };
+  return { watched, addMovie, removeMovie, isInWatched, status };
 };

@@ -6,6 +6,7 @@ import {
   Typography,
   Button,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useWatched } from "../features/watched/useWatched";
@@ -13,9 +14,11 @@ import EmptyStateIcon from "@mui/icons-material/LocalMovies";
 import { useState } from "react";
 import ConfirmationModal from "../components/ConfirmationModal";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { useAuth } from "../features/auth/useAuth";
 
 const Watched = () => {
-  const { watched, removeMovie } = useWatched();
+  const { watched, removeMovie, status } = useWatched();
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [movieToRemove, setMovieToRemove] = useState<number | null>(null);
 
@@ -46,6 +49,34 @@ const Watched = () => {
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  // Show loading spinner while fetching data
+  if (status === "loading") {
+    return (
+      <Box className="flex justify-center items-center min-h-[70vh]">
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
+
+  // If not logged in, show login prompt
+  if (!user) {
+    return (
+      <Box className="p-6 min-h-screen flex flex-col items-center justify-center">
+        <Typography variant="h5" className="mb-4 text-center">
+          Please log in to view your watched movies
+        </Typography>
+        <Button 
+          variant="contained" 
+          color="primary"
+          href="/login" 
+          className="mt-2"
+        >
+          Go to Login
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box className="p-6 min-h-screen flex flex-col items-center">

@@ -43,6 +43,10 @@ const watchedSlice = createSlice({
     setError: (state) => {
       state.status = "failed";
     },
+    resetWatched: (state) => {
+      state.items = [];
+      state.status = "idle";
+    },
   },
 });
 
@@ -52,6 +56,7 @@ export const {
   removeFromWatched,
   setLoading,
   setError,
+  resetWatched,
 } = watchedSlice.actions;
 
 export const fetchWatched = 
